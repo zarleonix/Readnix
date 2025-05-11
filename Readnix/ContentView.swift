@@ -12,12 +12,12 @@ struct ContentView: View {
     @State private var username = ""
     @State private var password = ""
     @State private var books: [LibraryItem] = []
-    @State private var authToken: String? = nil
+    @StateObject var session = SessionManager.shared
     @State private var showingAlert = false
     @State private var alertMessage = ""
 
     var body: some View {
-        if authToken == nil {
+        if session.authToken == nil {
             NavigationView {
                 Form {
                     Section(header: Text("Сервер")) {
@@ -45,7 +45,7 @@ struct ContentView: View {
                 }
             }
         } else {
-            HomeView(books: books, token: authToken!, serverUrl: serverUrl)
+            HomeView(books: books, token: session.authToken!, serverUrl: serverUrl)
         }
     }
 
@@ -57,7 +57,7 @@ struct ContentView: View {
             case .success(let token):
                 SessionManager.shared.authToken = token
                 #warning("Временное решение, заменить позже")
-                self.authToken = token
+                self.session.authToken = token
                 client.getLibraries(token: token) { result in
                     switch result {
                     case .success(let libraries):

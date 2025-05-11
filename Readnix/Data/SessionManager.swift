@@ -7,30 +7,38 @@
 
 import Foundation
 
-#warning("Позже переделать на Keychain")
-class SessionManager {
+final class SessionManager: ObservableObject {
     static let shared = SessionManager()
 
-    private let defaults = UserDefaults.standard
-    private let kAuthToken = "auth_token"
-    private let kLibraryId = "library_id"
+    private let tokenKey = "authToken"
+    private let libraryIdKey = "libraryId"
 
-    var authToken: String? {
-        get { defaults.string(forKey: kAuthToken) }
-        set { defaults.set(newValue, forKey: kAuthToken) }
+    @Published var authToken: String? {
+        didSet {
+            if let token = authToken {
+                KeychainHelper.shared.save(token, service: "ReadnixToken", account: "user")
+            } else {
+                KeychainHelper.shared.delete(service: "ReadnixToken", account: "user")
+            }
+        }
     }
 
-    var libraryId: String? {
-        get { defaults.string(forKey: kLibraryId) }
-        set { defaults.set(newValue, forKey: kLibraryId) }
+    @Published var libraryId: String? {
+        didSet {
+            if let id = libraryId {
+                UserDefaults.standard.set(id, forKey: libraryIdKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: libraryIdKey)
+            }
+        }
     }
 
-    var isUserLoggedIn: Bool {
-        return authToken != nil && libraryId != nil
+    private init() {
+        self.authToken = KeychainHelper.shared.read(service: "ReadnixToken", account: "user")
+        self.libraryId = UserDefaults.standard.string(forKey: libraryIdKey)
     }
 
-    func clearSession() {
-        authToken = nil
-        libraryId = nil
+    var isAuthorized: Bool {
+        authToken != nil
     }
 }
