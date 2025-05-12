@@ -7,6 +7,10 @@
 
 import Foundation
 
+/// Клиент для выполнения сетевых запросов к серверу Audiobookshelf.
+/// Содержит методы авторизации, получения библиотек, книг и информации о пользователе.
+/// Использует URLSession и JSONDecoder.
+
 class APIClient {
     private let serverURL: String
     private let session = URLSession.shared
@@ -15,7 +19,10 @@ class APIClient {
         self.serverURL = serverURL
     }
 
-    // Метод для авторизации
+    /// Метод для авторизации
+    /// Отправляет POST-запрос на /login для авторизации пользователя.
+    /// При успешном входе возвращает JSON с токеном (и, возможно, user-объектом).
+    /// В случае ошибки — вызывает completion с ошибкой.
     func login(username: String, password: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard var baseURL = URL(string: serverURL) else {
             print("Неверный URL сервера")
@@ -87,9 +94,7 @@ class APIClient {
                 print("Ошибка парсинга JSON: \(error.localizedDescription), Ответ: \(rawResponse)")
                 completion(.failure(error))
             }
-            
         }
-
         task.resume()
     }
 
@@ -139,6 +144,10 @@ class APIClient {
         task.resume()
     }
     
+    /// Получает список книг из выбранной библиотеки по её ID.
+    /// Требует авторизационный токен (Bearer).
+    /// Возвращает массив Book или ошибку.
+
     func getLibraryItems(libraryId: String, token: String, completion: @escaping (Result<[LibraryItem], Error>) -> Void) {
         guard var baseURL = URL(string: serverURL) else {
             completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Неверный URL сервера"])))
@@ -189,7 +198,6 @@ class APIClient {
                 completion(.failure(error))
             }
         }
-
         task.resume()
     }
     
@@ -242,7 +250,6 @@ class APIClient {
                 completion(.failure(error))
             }
         }
-
         task.resume()
     }
     
@@ -295,7 +302,6 @@ class APIClient {
                 completion(.failure(error))
             }
         }
-
         task.resume()
     }
 }

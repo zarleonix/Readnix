@@ -8,6 +8,10 @@
 import Security
 import Foundation
 
+/// Утилита для работы с системой безопасности Keychain.
+/// Предоставляет простой интерфейс для сохранения, чтения и удаления данных (например, токена).
+/// Использует Security.framework (SecItemAdd, SecItemCopyMatching и т.д.)
+
 final class KeychainHelper {
     static let shared = KeychainHelper()
     

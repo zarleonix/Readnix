@@ -7,6 +7,11 @@
 
 import Foundation
 
+/// Менеджер сессии приложения.
+/// Отвечает за хранение и восстановление токена авторизации (из Keychain),
+/// ID текущей библиотеки (из UserDefaults) и информации о пользователе.
+/// Используется в SwiftUI через ObservableObject для отслеживания состояния авторизации.
+
 final class SessionManager: ObservableObject {
     static let shared = SessionManager()
 
