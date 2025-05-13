@@ -9,30 +9,30 @@
 import SwiftUI
 
 struct BookDetailView: View {
-    let book: Book
+    let libraryItem: LibraryItem
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text(book.title)
+                Text(libraryItem.media.metadata.title)
                     .font(.title)
                     .bold()
 
-                if let author = book.author?.name {
-                    Text("Автор: \(author)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
+                
+                Text("Автор: \(libraryItem.media.metadata.authorName)")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                
 
-                Text("Длительность: \(formattedDuration(seconds: book.duration))")
+                Text("Длительность: \(formattedDuration(seconds: libraryItem.media.duration!))")
                     .font(.subheadline)
                 
 
-                if let progress = book.progress?.seconds {
-                    Text("Прогресс: \(formattedDuration(seconds: progress))")
-                        .font(.subheadline)
-                        .foregroundColor(.blue)
-                }
+//                if let progress = book.progress?.seconds {
+//                    Text("Прогресс: \(formattedDuration(seconds: progress))")
+//                        .font(.subheadline)
+//                        .foregroundColor(.blue)
+//                }
 
                 // Кнопки действия — в будущем
                 HStack {
@@ -53,9 +53,9 @@ struct BookDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    func formattedDuration(seconds: Int) -> String {
-        let hours = seconds / 3600
-        let minutes = (seconds % 3600) / 60
+    func formattedDuration(seconds: Float) -> String {
+        let hours = Int(seconds / 3600)
+        let minutes = Int((seconds.truncatingRemainder(dividingBy: 3600)) / 60)
         return "\(hours)ч \(minutes)м"
     }
 }

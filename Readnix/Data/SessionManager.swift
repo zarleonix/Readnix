@@ -37,6 +37,11 @@ final class SessionManager: ObservableObject {
             }
         }
     }
+    
+    func logout() {
+        authToken = nil
+        libraryId = nil
+    }
 
     private init() {
         self.authToken = KeychainHelper.shared.read(service: "ReadnixToken", account: "user")

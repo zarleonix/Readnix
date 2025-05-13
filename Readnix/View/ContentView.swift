@@ -20,32 +20,32 @@ struct ContentView: View {
         if session.authToken == nil {
             NavigationView {
                 Form {
-                    Section(header: Text("Сервер")) {
-                        TextField("Адрес сервера", text: $serverUrl)
+                    Section(header: Text("label_Server")) {
+                        TextField("label_serverUrl", text: $serverUrl)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
                     }
 
-                    Section(header: Text("Вход")) {
-                        TextField("Имя пользователя", text: $username)
+                    Section(header: Text("label_login")) {
+                        TextField("label_username", text: $username)
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
 
-                        SecureField("Пароль", text: $password)
+                        SecureField("Label_Password", text: $password)
                     }
 
                     Button("login_button") {
                         login()
                     }
                 }
-                .navigationTitle("Вход")
+                .navigationTitle("label_login")
                 .alert(isPresented: $showingAlert) {
                     Alert(title: Text("Ошибка"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
                 }
             }
         } else {
-            HomeView(books: books, token: session.authToken!, serverUrl: serverUrl)
+            HomeView(libraryItem: books, token: session.authToken!, serverUrl: serverUrl)
         }
     }
 
@@ -56,14 +56,12 @@ struct ContentView: View {
             switch result {
             case .success(let token):
                 SessionManager.shared.authToken = token
-                #warning("Временное решение, заменить позже")
-                self.session.authToken = token
                 client.getLibraries(token: token) { result in
                     switch result {
                     case .success(let libraries):
                         if let firstLibrary = libraries.first {
                             SessionManager.shared.libraryId = firstLibrary.id
-                            client.getLibraryItems(libraryId: firstLibrary.id, token: token) { result in
+                            client.getBooks(libraryId: firstLibrary.id, token: token) { result in
                                 DispatchQueue.main.async {
                                     switch result {
                                     case .success(let books):
