@@ -7,26 +7,34 @@
 
 import Foundation
 
-// MARK: - LibraryResponse
 struct LibraryResponse: Codable {
     let libraries: [Library]
 }
 
-// MARK: - Library
 struct Library: Codable {
-    let id: String
+    let id: String // Read Only
     let name: String
     let folders: [Folder]
     let displayOrder: Int
-    let mediaType: String
+    let icon: String
+    let mediaType: String // Read Only
     let provider: String
-    // другие поля можно добавлять по мере необходимости
+    let settings: LibrarySettings
+    let createdAt: Int // Read Only
+    let lastUpdate: Int // Read Only
 }
 
-// MARK: - Folder
 struct Folder: Codable {
     let id: String
     let fullPath: String
     let libraryId: String
-    let addedAt: Int64
+    let addedAt: Int
+}
+
+struct LibrarySettings: Codable {
+    let coverAspectRatio: Int
+    let disableWatcher: Bool
+    let skipMatchingMediaWithAsin: Bool
+    let skipMatchingMediaWithIsbn: Bool
+    let autoScanCronExpression: String?
 }

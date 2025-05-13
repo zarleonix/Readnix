@@ -7,50 +7,54 @@
 
 import Foundation
 
-// MARK: - User Response
-struct UserResponse: Codable {
-    let user: User
-    let userDefaultLibraryId: String
-}
+//struct UserResponse: Codable {
+//    let user: User
+//}
 
-// MARK: - User
 struct User: Codable {
     let id: String
     let username: String
-    let email: String?
     let type: String
-    let token: String // Не стоит хранить токен здесь — лучше передавать отдельно
-    let mediaProgress: [MediaProgress]?
+    let token: String
+    let mediaProgress: [MediaProgress]
+    let seriesHideFromContinueListening: [String]
+    let bookmarks: [AudioBookmark]
     let isActive: Bool
     let isLocked: Bool
-    let permissions: Permissions
+    let lastSeen: Int?
+    let createdAt: Int
+    let permissions: UserPermissions
     let librariesAccessible: [String]
-    let hasOpenIDLink: Bool
-    // ... другие поля можно добавлять по мере необходимости
+    let itemTagsAccessible: [String]
 }
 
-// MARK: - MediaProgress
-struct MediaProgress: Codable {
-    let id: String
-//    let userId: String
-    let libraryItemId: String
-    let mediaItemId: String
-    let mediaItemType: String
-    let duration: Double
-    let progress: Double
-    let isFinished: Bool
-    let currentTime: Double
-}
-
-// MARK: - Permissions
-struct Permissions: Codable {
+struct UserPermissions: Codable {
     let download: Bool
     let update: Bool
     let delete: Bool
     let upload: Bool
-    let createEreader: Bool
     let accessAllLibraries: Bool
     let accessAllTags: Bool
     let accessExplicitContent: Bool
-    let selectedTagsNotAccessible: Bool
+}
+
+struct MediaProgress: Codable {
+    let id: String
+    let libraryItemId: String
+    let episodeId: String?
+    let duration: Float
+    let progress: Float
+    let currentTime: Float
+    let isFinished: Bool
+    let hideFromContinueListening: Bool
+    let lastUpdate: Int
+    let startedAt: Int
+    let finishedAt: Int?
+}
+
+struct AudioBookmark: Codable {
+    let libraryItemId: String
+    let title: String
+    let time: Int
+    let createdAt: Int
 }
