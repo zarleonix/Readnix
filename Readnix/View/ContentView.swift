@@ -36,7 +36,9 @@ struct ContentView: View {
                     }
 
                     Button("login_button") {
-                        login()
+                        Task {
+                            await login()
+                        }
                     }
                 }
                 .navigationTitle("label_login")
@@ -49,40 +51,33 @@ struct ContentView: View {
         }
     }
 
-    func login() {
+    func login() async {
         let client = APIClient(serverURL: serverUrl)
 
-        client.login(username: username, password: password) { result in
-            switch result {
-            case .success(let token):
-                SessionManager.shared.authToken = token
-                client.getLibraries(token: token) { result in
-                    switch result {
-                    case .success(let libraries):
-                        if let firstLibrary = libraries.first {
-                            SessionManager.shared.libraryId = firstLibrary.id
-                            client.getBooks(libraryId: firstLibrary.id, token: token) { result in
-                                DispatchQueue.main.async {
-                                    switch result {
-                                    case .success(let books):
-                                        self.books = books
-                                    case .failure(let error):
-                                        self.alertMessage = "Ошибка загрузки: \(error.localizedDescription)"
-                                        self.showingAlert = true
-                                    }
-                                }
-                            }
-                        } else {
-                            self.alertMessage = "Библиотеки не найдены"
-                            self.showingAlert = true
-                        }
-                    case .failure(let error):
-                        self.alertMessage = "Ошибка загрузки библиотек: \(error.localizedDescription)"
-                        self.showingAlert = true
-                    }
-                }
-            case .failure(let error):
-                self.alertMessage = "Ошибка входа: \(error.localizedDescription)"
+        do {
+            // 1. Авторизация
+            let token = try await client.login(username: username, password: password)
+            SessionManager.shared.authToken = token
+
+            // 2. Получение библиотек
+            let libraries = try await client.getLibraries(token: token)
+            guard let firstLibrary = libraries.first else {
+                throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Библиотеки не найдены"])
+            }
+            SessionManager.shared.libraryId = firstLibrary.id
+
+            // 3. Получение книг
+            let books = try await client.getBooks(libraryId: firstLibrary.id, token: token)
+            await MainActor.run {
+                self.books = books
+            }
+
+            // 4.Получение данных пользователя
+            let user = try await client.fetchUser(token: token)
+
+        } catch {
+            await MainActor.run {
+                self.alertMessage = "Ошибка: \(error.localizedDescription)"
                 self.showingAlert = true
             }
         }

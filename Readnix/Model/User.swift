@@ -7,10 +7,6 @@
 
 import Foundation
 
-//struct UserResponse: Codable {
-//    let user: User
-//}
-
 struct User: Codable {
     let id: String
     let username: String
@@ -25,7 +21,7 @@ struct User: Codable {
     let createdAt: Int
     let permissions: UserPermissions
     let librariesAccessible: [String]
-    let itemTagsAccessible: [String]
+    let itemTagsSelected: [String]
 }
 
 struct UserPermissions: Codable {
