@@ -35,7 +35,7 @@ struct ContentView: View {
                         SecureField("Пароль", text: $password)
                     }
 
-                    Button("Войти") {
+                    Button("login_button") {
                         login()
                     }
                 }
