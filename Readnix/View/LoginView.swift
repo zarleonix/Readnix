@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ContentView: View {
+struct LoginView: View {
     @State private var serverUrl = ""
     @State private var username = ""
     @State private var password = ""
@@ -15,6 +15,7 @@ struct ContentView: View {
     @StateObject var session = SessionManager.shared
     @State private var showingAlert = false
     @State private var alertMessage = ""
+    @Environment(\.modelContext) private var context
 
     var body: some View {
         if session.authToken == nil {
@@ -47,7 +48,7 @@ struct ContentView: View {
                 }
             }
         } else {
-            HomeView(libraryItem: books, token: session.authToken!, serverUrl: serverUrl)
+            HomeView()
         }
     }
 
@@ -58,23 +59,28 @@ struct ContentView: View {
             // 1. Авторизация
             let token = try await client.login(username: username, password: password)
             SessionManager.shared.authToken = token
-
+            SessionManager.shared.serverURL = serverUrl
+            
             // 2. Получение библиотек
             let libraries = try await client.getLibraries(token: token)
             guard let firstLibrary = libraries.first else {
                 throw NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Библиотеки не найдены"])
             }
             SessionManager.shared.libraryId = firstLibrary.id
-
+            
             // 3. Получение книг
             let books = try await client.getBooks(libraryId: firstLibrary.id, token: token)
+            
             await MainActor.run {
                 self.books = books
             }
-
-            // 4.Получение данных пользователя
+            
+            try context.delete(model: LibraryItemLocal.self)
+            await LibraryItemStorage.syncBooks(books, serverURL: session.serverURL!, context: context)
+            
+            // 4. Получение данных пользователя
             let user = try await client.fetchUser(token: token)
-
+            
         } catch {
             await MainActor.run {
                 self.alertMessage = "Ошибка: \(error.localizedDescription)"
@@ -85,5 +91,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    LoginView()
 }

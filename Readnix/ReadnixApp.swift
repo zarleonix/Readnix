@@ -11,7 +11,8 @@ import SwiftUI
 struct ReadnixApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            LoginView()
         }
+        .modelContainer(for: LibraryItemLocal.self)
     }
 }

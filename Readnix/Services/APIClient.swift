@@ -12,7 +12,7 @@ import Foundation
 /// Использует URLSession и JSONDecoder.
 
 class APIClient {
-    private let serverURL: String
+    let serverURL: String
     private let session = URLSession.shared
     
     init(serverURL: String) {

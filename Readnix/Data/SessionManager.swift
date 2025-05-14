@@ -14,9 +14,9 @@ import Foundation
 
 final class SessionManager: ObservableObject {
     static let shared = SessionManager()
-
     private let tokenKey = "authToken"
     private let libraryIdKey = "libraryId"
+    private let serverURLKey = "serverURL" // Новый ключ
 
     @Published var authToken: String? {
         didSet {
@@ -37,18 +37,30 @@ final class SessionManager: ObservableObject {
             }
         }
     }
-    
-    func logout() {
-        authToken = nil
-        libraryId = nil
+
+    @Published var serverURL: String? {
+        didSet {
+            if let url = serverURL {
+                UserDefaults.standard.set(url, forKey: serverURLKey)
+            } else {
+                UserDefaults.standard.removeObject(forKey: serverURLKey)
+            }
+        }
     }
 
     private init() {
         self.authToken = KeychainHelper.shared.read(service: "ReadnixToken", account: "user")
         self.libraryId = UserDefaults.standard.string(forKey: libraryIdKey)
+        self.serverURL = UserDefaults.standard.string(forKey: serverURLKey)
     }
 
     var isAuthorized: Bool {
         authToken != nil
+    }
+
+    func logout() {
+        authToken = nil
+        libraryId = nil
+        serverURL = nil
     }
 }
